@@ -1,6 +1,6 @@
 <template>
   <el-col class="container">
-	  <el-col :span="24" class="headerStatement">
+	  <el-col :span="24" class="headerStatement" v-show="takeUp">
        <div class="home-title">
 				 <div>众汇金控商业智能系统</div>
 			 </div>
@@ -21,7 +21,7 @@
 
     <!-- BI图表 -->
     <el-col class="statementBox">
-      <Supersystem ></Supersystem>
+      <Supersystem @parent_takeUp="getTakeUp"></Supersystem>
     </el-col>
   </el-col>
 </template>
@@ -36,13 +36,18 @@ export default {
   },
 	data(){
     return{
-      fullScreen: false
+      fullScreen: false,
+      takeUp: true
     }
   },
   	methods:{
     launchFullScreen(element){ //全屏
       util.launchFullScreen(element,this)
     },
+    // BI 控制 是否显示头部
+		getTakeUp(data){
+			this.takeUp = data
+		},
 
 		logout(){//退出登录
 			var _this = this;

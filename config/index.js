@@ -17,6 +17,20 @@ module.exports = {
     //     changeOrigin:true
     //   }
     // },
+     proxyTable: {
+      '/zhac':{//登陆接口
+        // target:'http://192.168.50.217:6102',
+        target:'http://172.16.10.20:9001',
+        changeOrigin:true,
+        pathRewrite: { 
+          '^/zhac':''
+          } 
+      },
+      '/biview':{ //BI图表
+        target:'http://192.168.50.120:8000',
+        changeOrigin:true
+      }
+    },
 
     // Various Dev Server settings
     // host: '192.168.50.56', // can be overwritten by process.env.HOST

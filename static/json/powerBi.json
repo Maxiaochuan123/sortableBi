@@ -3,10 +3,6 @@
   "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiNzBhZTYwYzYtOGIxOC00ZDU0LWFhODUtZTQ1NmNkNmE2OTI5IiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
   "specialTime":"2018-6-13"
 },{
-  "specialTitle": "可用资金",
-  "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiYjY1MjA3MDUtMmJjZi00ZDViLWE0NDMtNjM5Yjg4NTU5MzYyIiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
-  "specialTime":"2018-6-13"
-},{
   "specialTitle": "每日财务汇报",
   "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiY2FiNjI2YzAtYWU4Zi00YTUwLWE2M2UtMDJlZmFjNGFiM2Q3IiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
   "specialTime":"2018-6-13"
@@ -21,5 +17,13 @@
 },{
   "specialTitle": "金融体系收入与业绩",
   "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiM2RlYWFmYWQtY2I3NC00M2QzLWFhNDItYTY5OGZlZjM1YmUzIiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
+  "specialTime":"2018-6-13"
+},{
+  "specialTitle": "可用资金详情",
+  "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiN2M5YjlhMDktN2MyNy00NmNjLWFlNmYtMjJlZTg1MTdhODFjIiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
+  "specialTime":"2018-6-13"
+},{
+  "specialTitle": "可用资金",
+  "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiYWIwM2M0MjAtZjM0YS00OTNmLWJjOTMtN2NlMDYzOTk0MWRlIiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
   "specialTime":"2018-6-13"
 }]

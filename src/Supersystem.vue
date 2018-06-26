@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <div id="left" v-if="take_Up">
+    <div id="left" v-show="take_Up">
 
       <!-- 收入箭头 -->
       <div class="takeUp" @click="takeUp"><i :class="take_Up ? 'iconfont icon-zuo' : 'iconfont icon-you'"></i></div>
@@ -17,26 +17,80 @@
           </div>
         </div>
         <!-- 表单 -->
-        <div class="scrollChartFrom">
-          
+        <div class="scrollChartFromBox">
+          <el-form :model="scrollChartFormData" :rules="scrollChartFromRules" ref="scrollChartFormData" label-width="100px" class="scrollChartFrom">
+            <el-form-item label="图表名称：" prop="chartName">
+            <el-input v-model="scrollChartFormData.chartName" clearable></el-input>
+            </el-form-item>
+            <el-form-item label="填充数据：" prop="roleData">
+              <el-input v-model="scrollChartFormData.roleData" clearable></el-input>
+            </el-form-item>
+
+            <div class="chartLabelBox">
+              <div class="chartLabelTitle">图表标签：</div>
+                <div class="chartLabelContent">
+                <el-tag
+                  :key="tag"
+                  v-for="tag in scrollChartFormData.chartLabel"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleClose(tag)">
+                  {{tag}}
+                </el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="scrollInputVisible"
+                  v-model="scrollInputValue"
+                  ref="scrollSaveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                  >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 添加标签</el-button>
+              </div>
+            </div>
+          </el-form>
         </div>
+        <div class="scrollChartSubmitBtn" @click="scrollChartSubmit('scrollChartFormData')">新增</div>
       </div>
 
       <!-- 新增 专题 Model -->
       <div class="specialModel" v-if="specialModel">
         <div class="close" @click="close"><i class="iconfont icon-cuowu"></i></div>
         <div class="title">新增专题</div>
-        <el-form :model="specialFormData" :rules="rules" ref="specialFormData" label-width="100px" class="specialForm">
+        <el-form :model="specialFormData" :rules="specialFormRules" ref="specialFormData" label-width="100px" class="specialForm">
           <el-form-item label="专题名称：" prop="specialTitle">
             <el-input v-model="specialFormData.specialTitle" clearable></el-input>
           </el-form-item>
           <el-form-item label="专题链接：" prop="specialUrl">
             <el-input v-model="specialFormData.specialUrl" clearable></el-input>
           </el-form-item>
-          <el-form-item label="新增日期：" prop="specialTime">
-            <el-date-picker v-model="specialFormData.specialTime" type="date"  size="large" format="yyyy 年 MM 月 dd 日" value-format="timestamp"  placeholder="选择日期"  class="fromInput"></el-date-picker>   
-          </el-form-item>
-          <div class="specialAddBtn" @click="specialAddSubmit('specialFormData')">新增</div>
+           <div class="chartLabelBox">
+              <div class="chartLabelTitle">图表标签：</div>
+                <div class="chartLabelContent">
+                <el-tag
+                  :key="tag"
+                  v-for="tag in specialFormData.chartLabel"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleClose(tag)">
+                  {{tag}}
+                </el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="specialInputVisible"
+                  v-model="specialInputValue"
+                  ref="specialSaveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                  >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 添加标签</el-button>
+              </div>
+            </div>
+          <div class="specialAddBtn" @click="specialSubmit('specialFormData')">新增</div>
         </el-form>
       </div>
 
@@ -47,7 +101,7 @@
         <span @click="clickSwitchBox1($event)">{{switchText1}}<i :class=" switchBox == true ? 'iconfont icon-xiajiantou' :  'iconfont icon-shangjiantou'"></i></span>
         <span @click="clickSwitchBox2($event)" v-show="switchBox">{{switchText2}}</span>
       </div>
-
+ 
     <!-- 新增专题按钮 -->
     <div class="specialAdd" @click="specialAdd"><i class="iconfont icon-xinzeng"></i></div>
 
@@ -62,27 +116,27 @@
   </div>
 
     <!-- 通用 -->
-    <div class="left_currencyBox" v-show="showEchart">
-      <!-- <div class="currencyBox" v-for="(item,index) in currencyData" :key="index">
-        <div class="leftechartbox" :id="item.leftechartSource.Id" :data-echart="item.leftechartSource.Id + index" :data-name="item.leftechartSource.Name" draggable="true" @dragstart="drag($event,item.completeData)"></div>
+    <div class="left_currencyBox" v-if="showEchart">
+      <div class="currencyBox" v-for="(item,index) in currencyData" :key="index">
+        <div class="currencyEchartBox" :id="item.leftechartSource.Id" :data-echart="item.leftechartSource.Id + index" :data-name="item.leftechartSource.Name" draggable="true" @dragstart="drag($event,item.completeData)"></div>
           <p>{{item.leftechartSource.Name}}</p>
-      </div> -->
-    <A @parent_dragstart="drag"></A>
+      </div>
+    <!-- <A @parent_dragstart="drag"></A>
     <B @parent_dragstart="drag"></B>
     <C @parent_dragstart="drag"></C>
     <D @parent_dragstart="drag"></D>
     <E @parent_dragstart="drag"></E>
     <F @parent_dragstart="drag"></F>
     <echartG @parent_dragstart="drag" style="width:100%;margin-left:0;"></echartG>
-    <H @parent_dragstart="drag" style="width:100%;margin-left:0;"></H>
+    <H @parent_dragstart="drag" style="width:100%;margin-left:0;"></H> -->
   </div>
 
     <!-- 专题 -->
-    <div class="left_specialBox" v-show="showEchart == false">
-      <el-tooltip class="item" effect="dark" :content="item.specialTitle" placement="top-start" v-for="(item, index) of specialData" :key="index">
+    <div class="left_specialBox" v-if="!showEchart">
+      <el-tooltip class="item" effect="dark" :data-name="item.specialTitle" :content="item.specialTitle" placement="top-start" v-for="(item, index) of specialData" :key="index">
         <div draggable="true" @dragstart="drag"  @click="specialclick($event)">
           <span class="title" :data-url="item.specialUrl">{{item.specialTitle}}</span><span class="time">{{item.specialTime}}</span>
-        </div>                
+        </div> 
       </el-tooltip>
     </div>
   </div>
@@ -110,7 +164,7 @@
   </div>
 
       <!-- 专题 -->
-      <div class="special" v-if="showEchartBox == false" draggable="true" @dragover="allowDrop($event)" @drop="drop($event)" @dragenter="dragenter($event)" @dragleave="dragleave($event)">
+      <div class="special" v-if="!showEchartBox" draggable="true" @dragover="allowDrop($event)" @drop="drop($event)" @dragenter="dragenter($event)" @dragleave="dragleave($event)">
         <iframe class="iframeBox"  src="" scrolling="yes" frameborder="0"> </iframe>
       </div>
 
@@ -122,24 +176,28 @@
   import Sortable from '../static/script/Sortable.js'
   import echarts from '../static/script/echarts.js'
 
+  import {requestEchartsTest} from '../src/api/api'
   import {requestEcharts} from '../src/api/api'
   import {requestPowerBi} from '../src/api/api'
   import {requestCurrencyAddData} from '../src/api/api'
 
-  import A from './components/A'
-  import B from './components/B'
-  import C from './components/C'
-  import D from './components/D'
-  import E from './components/E'
-  import F from './components/F'
-  import echartG from './components/echartG'
-  import H from './components/H'
+  // import A from './components/A'
+  // import B from './components/B'
+  // import C from './components/C'
+  // import D from './components/D'
+  // import E from './components/E'
+  // import F from './components/F'
+  // import echartG from './components/echartG'
+  // import H from './components/H'
 
 
   // search 重置
   let restore = () => {
-    $('#left .leftechartbox').each(function (index,item) {
+    $('#left .currencyEchartBox').each(function (index,item) {
       $(item).parent().css('display','block')
+    })
+    $('#left .left_specialBox div').each(function (index,item) {
+      $(item).css('display','block')
     })
   }
 
@@ -180,19 +238,20 @@
 
   export default {
     name: "Echarts",
-    components: {
-      A, B, C, D, E, F, echartG, H
-    },
+    // components: {
+    //   A, B, C, D, E, F, echartG, H
+    // },
     data() {
       return {
         srcdiv: '', //左侧当前拖拽元素
         myChart: '', //当前echart实例
         clearVal: false, //清除按钮
         searchInput: '', //搜索栏 数据
-        searchDataName: [], //模糊查询所用数据 来自子组件的 自定义属性 data-name
+        searchNameList: [], //模糊查询所用数据 来自子组件的 自定义属性 data-name
         fuzzyQueryList_show: false,//模糊查询列表是否显示
         leftEchartName: '', // 用于搜索时条件判断的 name 名称
         completeData: {}, //当前拖拽图表完整数据
+        rightIdList:[], //用于自适应重新渲染大小
         liIndex: 0,
         switchBox: false, //切换通用 / 专题
         switchText1: '通用',
@@ -205,25 +264,142 @@
         currencyData:[], //通用数据        
         specialData:[], //专题数据
         currencyAddData:[], //新增 通用数据
-        specialFormData:{
+        scrollChartFormData:{ //通用新增模态框数据
+          type:'',
+          roleData:'',
+          chartName:'',
+          chartLabel:[]
+        },
+        scrollChartFromRules:{
+          roleData:[{ required: true, message: '请将信息填写完整', trigger: ['blur','change']}],
+          chartName:[{ required: true, message: '请将信息填写完整', trigger: ['blur','change']}]
+        },
+        scrollInputVisible: false,
+        scrollInputValue: '',
+
+        specialFormData:{ //专题新增模态框数据
           specialTitle:'',
           specialUrl:'',
-          specialTime: new Date()
+          chartLabel:[]
         },
-        rules:{
+        specialFormRules:{
           specialTitle:[{ required: true, message: '请将信息填写完整', trigger: ['blur','change']}],
           specialUrl:[{ required: true, message: '请将信息填写完整', trigger: ['blur','change']}],
           specialTime:[{ required: true, message: '请将信息填写完整', trigger: ['blur','change']}]
         },
-        scrollChartFromData:{
-          type:''
-        }
+        
+        specialInputVisible: false,
+        specialInputValue: '',
       };
     },
 
     created(){
+      requestEchartsTest().then(res=>{
+        // console.log("static:",res)
+      })
       requestEcharts().then(res=>{
-        this.currencyData = res
+        let list = res
+        // console.log("axios:",res)
+        // let legendData = []
+        // for(let parent of list){
+        //   for(let child of parent.value){
+        //     legendData.push(child.corpname)
+        //   }
+        // }
+        let itemList = list.map((parent) => { 
+          let temp = {
+                      "leftechartSource":{
+                        "Id": parent.id,
+                        "Name": parent.name,
+                        "grid": [{"x": "18%", "y": "7%", "width": "92%", "height": "56%"}],
+                        "xAxis": {
+                          "axisLine":{
+                            "lineStyle":{
+                              "color": "#fff"
+                            }
+                          },
+                          "data": parent.businessdate
+                        },
+                        "yAxis": {
+                          "axisLine":{
+                            "lineStyle":{
+                              "color": "#fff"
+                            }
+                          },
+                          "type" : 'value'
+                        },
+                        "color":["#00bade"],
+                        "series": parent.value.map(temp=>{
+                          return  {
+                              "name": '利润',
+                              "type": 'bar',
+                              "data": temp.data,
+                            }
+                        })
+                      },
+                      "completeData":{
+                        "title" : {
+                          "text": parent.name,
+                          "x":"center",
+                          "textStyle":{
+                            "color":"#fff"
+                          }
+                        },
+                        "tooltip" : {
+                            "trigger": 'axis'
+                        },
+                        "legend": {
+                            "top":"8%",
+                            "data": parent.corpname,
+                            "textStyle":{
+                              "color":"#fff"
+                            }
+                        },
+                        "grid": [{"x": "4%", "y": "16%", "width": "90%", "height": "62%"}],
+                        "xAxis": {
+                          "axisLine":{
+                            "lineStyle":{
+                              "color": "#fff"
+                            }
+                          },
+                          "axisLabel": {  
+                            "interval":0,  
+                            "rotate":40  
+                          },
+                          "data": parent.businessdate
+                        },
+                        "yAxis": {
+                          "axisLine":{
+                            "lineStyle":{
+                              "color": "#fff"
+                            }
+                          },
+                          "type" : 'value'
+                        },
+                        "color":["#00bade","#ff6600"],
+                        "series": parent.value.map(temp=>{
+                          return  {
+                              "name": temp.corpname,
+                              "type": 'bar',
+                              "data": temp.data,
+                              "markPoint" : {
+                                  "data" : [
+                                      {"type" : 'max', "name": '最大值'},
+                                      {"type" : 'min', "name": '最小值'}
+                                  ]
+                              }
+                            }
+                        })
+                      }
+                    }
+          return temp
+        })
+
+        this.currencyData = itemList
+
+
+        // console.log(this.currencyData)
+
       })
       requestPowerBi().then(res=>{
         this.specialData = res
@@ -234,10 +410,6 @@
     },
   
     mounted() {
-      // console.log('html：',$('.chartContent').html())
-      // $('.scrollChartBox').on('click',function(){
-      //   alert(1)
-      // })
       // 拖拽插件
       let sortable = Sortable.create(right, {
         group: {
@@ -249,6 +421,13 @@
         sort: true
       })
 
+      // 图表自适应
+      window.onresize = function(){
+        myChart.resize();
+      }
+
+      $('.takeUp').css('display','none')
+      $('.takeUp2').css('display','none')
       // 收起箭头
       $(() => {
         $(document).on('mousemove',(event)=>{
@@ -277,7 +456,7 @@
           let myChart = echarts.init(document.querySelector('#' + item.leftechartSource.Id))
           myChart.setOption(item.leftechartSource)
         }
-      })
+      },500)
 
     //浏览器退出时 保存当前设置
     //   window.onunload = function(event) {
@@ -312,14 +491,6 @@
   },
     
     methods: {
-      scrollChartBoxClick(ev, type){
-        $(ev.currentTarget).addClass('shadow').siblings().removeClass('shadow')
-        this.scrollChartFromData = type
-      },
-      scrollChartAddSubmit(){
-
-      },
-
       allowDrop(ev) {
         ev.preventDefault()
       },
@@ -362,7 +533,6 @@
            * 判断 echartID 中是否有重复 id  如果没有则将左侧 自定义属性添加为 Id
            */
             if (echartID.indexOf(data_echart) == -1) {
-              console.log(data_echart) 
               $(event.target).attr('id', data_echart)
               
               // if($(event.target).attr('id') == data_echart){
@@ -373,6 +543,8 @@
 
               let rightId = $(event.target).attr('id'); //获取当前放入 盒子的 id
               that.myChart = echarts.init(document.querySelector("#" + rightId)); //echart 查找符合条件的 id
+              
+              
                 //把数据设置到 当前drop的盒子上
               if(!$(event.target).attr('data-echartData')){
                   $(event.target).attr('data-echartData',JSON.stringify(that.completeData))
@@ -382,7 +554,20 @@
 
               // 获取盒子上的 自定义数据
               let attrData = $(event.target).attr('data-echartData')
-              data_echartData = JSON.parse(attrData)
+                    data_echartData = JSON.parse(attrData)
+
+                    // console.log('attrData：',data_echartData)
+
+                  this.rightIdList.push({'key':this.myChart,'val':data_echartData})
+                  this.rightIdList = [...new Set(this.rightIdList)]
+
+
+                  // 图表自适应
+                  window.onresize = function(){
+                    that.rightIdList.map((item)=>{
+                      item.key.resize()
+                    })
+                  }
 
                 //如果子组件传递了 完整数据，则显示完整数据
                 if (data_echart && data_echartData) {
@@ -410,7 +595,7 @@
     // 搜索框获取焦点
     searchFocus(){
       restore()
-
+      
       if(this.searchInput.length > 0){
         this.fuzzyQueryList_show = true
         this.clearVal = true
@@ -418,11 +603,21 @@
         this.clearVal = false
       }
 
-      let dataNameItem = []
-      $('#left .leftechartbox').each(function (index,item) {
-        dataNameItem.push($(item).attr('data-name'))
+      let currencyNameList = []
+      let specialNameList = []
+      // 获取所有通用 名称
+      $('#left .currencyEchartBox').each(function (index,item) {
+        currencyNameList.push($(item).attr('data-name'))
       })
-      this.searchDataName = dataNameItem
+      
+
+      // 获取专题 名称 
+      $('#left .left_specialBox div').each(function (index,item) {
+        specialNameList.push($(item).attr('data-name'))
+      })
+      console.log(this.searchNameList) 
+
+      this.showEchart ? this.searchNameList = currencyNameList : this.searchNameList = specialNameList
     },
 
     // 搜索框失去焦点
@@ -472,11 +667,11 @@
       //上下键选择 li
       if(ev.keyCode == 38){ //向上
         that.liIndex--
-        if(that.liIndex < 0) that.liIndex = that.searchDataName.length -1
+        if(that.liIndex < 0) that.liIndex = that.searchNameList.length -1
         console.log(that.liIndex)
       }else if(ev.keyCode == 40){//向下
         that.liIndex++
-        if(that.liIndex >= that.searchDataName.length ) that.liIndex = 0
+        if(that.liIndex >= that.searchNameList.length ) that.liIndex = 0
         console.log(that.liIndex)
       }
       let li = $('.autoCompletion').find("li:not(:first-child):eq(" + that.liIndex + ")")
@@ -486,10 +681,17 @@
     //searchGo 开始搜索
     searchGo(){
       let that = this
-      $('#left .leftechartbox').each(function (index,item) { 
+      // $('#left .currencyEchartBox').each(function (index,item) { 
+      //   if(that.searchInput != ''){
+      //     if($(item).attr('data-name') != that.searchInput){
+      //       $(item).parent().css('display','none')
+      //     }
+      //   }
+      // })
+      $('#left .left_specialBox div').each(function (index,item) { 
         if(that.searchInput != ''){
           if($(item).attr('data-name') != that.searchInput){
-            $(item).parent().css('display','none')
+            $(item).css('display','none')
           }
         }
       })
@@ -507,6 +709,7 @@
       
       this.currencyModel = false
       this.specialModel = false
+      
     },
     clickSwitchBox2(ev){
       this.switchBox = !this.switchBox    
@@ -519,6 +722,16 @@
       // 切换 showEchartBox
       this.showEchart = !this.showEchart
       this.showEchartBox = !this.showEchartBox
+
+      if(this.showEchart){
+         // 加载左侧图表
+          setTimeout(()=>{
+            for(let item of this.currencyData){
+              let myChart = echarts.init(document.querySelector('#' + item.leftechartSource.Id))
+              myChart.setOption(item.leftechartSource)
+            }
+          })
+      }
     },
 
     //专题点击展示
@@ -530,6 +743,38 @@
     // 时间转换 
     getTimeStamp(time){
       return new Date(time).getTime()
+    },
+
+
+    // 选择图表
+    scrollChartBoxClick(ev, type){
+      $(ev.currentTarget).addClass('shadow').siblings().removeClass('shadow')
+      this.scrollChartFormData.type = type
+
+      this.scrollChartFormData.chartName = ''
+      this.scrollChartFormData.roleData = ''
+      this.scrollChartFormData.chartLabel = []
+      console.log(this.scrollChartFormData.type)
+    },
+
+    // 新增通用 提交
+    scrollChartSubmit(scrollChartFormData){
+      this.$refs[scrollChartFormData].validate((valid) => {
+        if(valid){
+          this.$confirm('确定要提交吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then((res)=>{
+            
+          }).catch(res=>{
+            this.$message({ type: 'error', message: '提交失败!' })
+          })
+        } else {
+          this.$message.error('请将信息填写正确')
+          return false;
+        }
+      })
     },
 
     // 新增按钮
@@ -556,7 +801,7 @@
     },
 
     //新增专题 提交
-    specialAddSubmit(specialFormData){
+    specialSubmit(specialFormData){
       this.$refs[specialFormData].validate((valid) => {
         if(valid){
            // 时间转换成时间戳
@@ -591,9 +836,58 @@
         }
     },
 
+    handleClose(tag) {
+      if(this.showEchart){
+        this.scrollChartFormData.chartLabel.splice(this.scrollChartFormData.chartLabel.indexOf(tag), 1);
+      }else{
+        this.specialFormData.chartLabel.splice(this.specialFormData.chartLabel.indexOf(tag), 1);
+      }
+    },
+
+    showInput() {
+      if(this.showEchart){
+        this.scrollInputVisible = true;
+        this.$nextTick(_ => {
+          this.$refs.scrollSaveTagInput.$refs.input.focus();
+        });
+      }else{
+        this.specialInputVisible = true;
+        this.$nextTick(_ => {
+          this.$refs.specialSaveTagInput.$refs.input.focus();
+        });
+      }
+    },
+
+      handleInputConfirm() {
+        if(this.showEchart){
+          let inputValue = this.scrollInputValue;
+          if (inputValue) {
+            this.scrollChartFormData.chartLabel.push(inputValue);
+          }
+            this.scrollInputVisible = false;
+            this.scrollInputValue = '';
+        }else{
+          let inputValue = this.specialInputValue;
+          if (inputValue) {
+            this.specialFormData.chartLabel.push(inputValue);
+          }
+            this.specialInputVisible = false;
+            this.specialInputValue = '';
+        }
+      },
+
     // 收起箭头
     takeUp(){
       this.take_Up = !this.take_Up
+      console.log(this.rightIdList)
+
+      for(let item of this.rightIdList){
+          item.key.clear()
+          this.$nextTick(()=>{
+            item.key.setOption(item.val)
+            item.key.resize()
+          })
+      }
 
       if(this.take_Up){
         $('#left div').css('display', 'block')
@@ -603,16 +897,15 @@
         $('#right').css('width','80%')
         $('#right').css('padding','10px')
 
-        this.$emit('parent_takeUp',true)        
+        this.$emit('parent_takeUp',true)       
+          
       }else{
         $('#left div').css('display', 'none')
-        // $('#left').width(0)
-        // $('.takeUp').css('left','2px')
 
         $('#right').css('width','100%')
         $('#right').css('padding',0)
 
-      this.$emit('parent_takeUp',false)        
+        this.$emit('parent_takeUp',false)
       }
     },
 
@@ -659,16 +952,16 @@
     },
     computed: {
       // 搜索框模糊查询
-      searchFuzzyQueryList: function() {
+      searchFuzzyQueryList() {
         var search = this.searchInput;
         if (search) {
-          return this.searchDataName.filter(function(product) {
+          return this.searchNameList.filter(function(product) {
             return Object.keys(product).some(function(key) {
               return String(product[key]).toLowerCase().indexOf(search) > -1
             })
           })
         }
-        // return this.searchDataName; //全部列出，注释则，输入时列出查询数据
+        // return this.searchNameList; //全部列出，注释则，输入时列出查询数据
       }
     }
   };
@@ -719,7 +1012,7 @@
       padding-top: 20px;
       color: #fff;
     }
-    .specialForm{
+    .specialForm,.scrollChartFrom{
       margin-top: 40px;
       .el-form-item__label{
           color: #fff;
@@ -734,11 +1027,59 @@
         width: 140%;
       }
     }
+    .scrollChartFrom, .specialForm{
+      .chartLabelBox{
+        width: 87%;
+        margin-left: 61px;
+        display: flex;
+        justify-content: flex-start;
+
+        .chartLabelTitle{
+          width: 72px;
+          font-size: 14px;
+          color: #fff;
+          margin-left: 10px;
+        }
+
+        .chartLabelContent{
+          width: calc(91% - -1px);
+        }
+        .el-tag:first-child{
+          margin-left: 10px;
+        }
+        .el-tag, .button-new-tag, .input-new-tag{
+          float: left;
+        }
+        .el-tag + .el-tag {
+          margin-left: 10px;
+          margin-bottom: 6px;
+        }
+        .button-new-tag {
+          margin-left: 10px;
+          height: 32px;
+          line-height: 30px;
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+        .input-new-tag {
+          width: 90px;
+          margin-left: 10px;
+          vertical-align: bottom;
+        }
+      }
+    }
+    .scrollChartFrom{
+      margin-top: 0;
+      .el-form-item__content{
+        width: 612px;
+      }
+    }
     .specialAddBtn{
-      width: 100px;
-      height: 40px;
+      width: 110px;
+      height: 28px;
+      line-height: 28px;
       color: #fff;
-      margin: 40px  auto 0;
+      margin: 10px  auto 0;
       font-size: 16px;
       background-image: url('./assets/specialBtn.png');
       background-size: contain;
@@ -748,8 +1089,8 @@
 
   .currencyModel{
     width: 1114px;
-    height: 600px;
-    background-size: 100% 600px;
+    height: 560px;
+    background-size: 100% 560px;
     overflow: hidden;
 
     .title{
@@ -759,14 +1100,8 @@
     .chartContent{
       width: 98%;
       height: 152px;
-      float: right;
       margin: 18px 10px 0;
       overflow-y: auto;
-      // white-space: nowrap;
-      // display: flex;
-      // flex-wrap: wrap;
-      // justify-content: space-around;
-      // align-content: space-between;
 
       .scrollChartBox{
         width: 178px;
@@ -774,17 +1109,6 @@
         margin: 12px 4px 24px 32px;
         float: left;
         position: relative;
-        // box-sizing: border-box;
-        // white-space: normal;
-        // word-wrap: break-word;
-        // word-break: break-all;
-        // overflow: hidden;
-        // display: inline-block;
-        // background-color: aquamarine;
-
-        // :hover{
-        //   box-shadow: inset 1px 0px 15px #888890;
-        // }
 
         .scrollChart{
           width: 100%;
@@ -821,7 +1145,26 @@
       border-radius: 10px;
       background: #244776;
     }
+
+    .scrollChartFromBox{
+      width: 98%;
+      margin: 12px auto;
+      padding: 10px;
+    }
+
+    .scrollChartSubmitBtn{
+        width: 160px;
+        height: 40px;
+        line-height: 40px;
+        color: #fff;
+        margin: 0  auto;
+        font-size: 16px;
+        background-image: url('./assets/specialBtn.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
   }
+
 
   .searchBox{
     .specialAdd{
@@ -941,7 +1284,7 @@
         /* box-shadow: inset 1px 0px 15px #888890; */
         float: left;
         margin: 20px 2%;
-        .leftechartbox{
+        .currencyEchartBox{
           width:100%;
           height:100%;
         }
@@ -949,10 +1292,13 @@
           position: absolute;
           margin: 0;
           bottom: 4px;
-          width: 100%;
+          width: 98%;
           font-size: 16px;
           line-height: 20px;
           color: #fff;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;  
         }
       }
       .currencyBox:not(:nth-child(1)), .currencyBox:not(:nth-child(2)){
@@ -1015,8 +1361,8 @@
   }
 
   #right > div:not(:first-child) {
-    width: 30%;
-    height: 300px;
+    width: 99.7%;
+    height: 90%;
     margin-bottom: 20px;
     position: relative;
     z-index: 0;
@@ -1033,8 +1379,10 @@
   }
 
   .echartBox {
-    width: 97.7%;
-    height: 96.5%;
+    // width: 97.7%;
+    // height: 96.5%;
+    width: 99.3%;
+    height: 98.8%;
     z-index: -2;
     padding: 10px 0 0 10px;
   }
