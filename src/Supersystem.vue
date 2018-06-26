@@ -5,6 +5,15 @@
       <!-- 收入箭头 -->
       <div class="takeUp" @click="takeUp"><i :class="take_Up ? 'iconfont icon-zuo' : 'iconfont icon-you'"></i></div>
 
+      <!-- lodding -->
+      <div id="lodding" v-if="showLodding">
+        <div class="loader">
+          <div class="ball-scale-multiple">
+            <div  v-for="(item,index) in 3" :key="index"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- 新增 通用 Model -->
       <div class="currencyModel" v-if="currencyModel">
         <div class="close" @click="close"><i class="iconfont icon-cuowu"></i></div>
@@ -119,7 +128,9 @@
     <div class="left_currencyBox" v-if="showEchart">
       <div class="currencyBox" v-for="(item,index) in currencyData" :key="index">
         <div class="currencyEchartBox" :id="item.leftechartSource.Id" :data-echart="item.leftechartSource.Id + index" :data-name="item.leftechartSource.Name" draggable="true" @dragstart="drag($event,item.completeData)"></div>
+         <el-tooltip class="item" effect="dark" :content="item.leftechartSource.Name" placement="top-start">
           <p>{{item.leftechartSource.Name}}</p>
+          </el-tooltip>
       </div>
     <!-- <A @parent_dragstart="drag"></A>
     <B @parent_dragstart="drag"></B>
@@ -171,12 +182,11 @@
     </div>
   </div>
 </template>
-
 <script>
   import Sortable from '../static/script/Sortable.js'
   import echarts from '../static/script/echarts.js'
 
-  import {requestEchartsTest} from '../src/api/api'
+  // import {requestEchartsTest} from '../src/api/api'
   import {requestEcharts} from '../src/api/api'
   import {requestPowerBi} from '../src/api/api'
   import {requestCurrencyAddData} from '../src/api/api'
@@ -252,6 +262,7 @@
         leftEchartName: '', // 用于搜索时条件判断的 name 名称
         completeData: {}, //当前拖拽图表完整数据
         rightIdList:[], //用于自适应重新渲染大小
+        showLodding:true,
         liIndex: 0,
         switchBox: false, //切换通用 / 专题
         switchText1: '通用',
@@ -294,113 +305,111 @@
     },
 
     created(){
-      requestEchartsTest().then(res=>{
-        // console.log("static:",res)
-      })
+      // requestEchartsTest().then(res=>{
+      //   // console.log("static:",res)
+      // })
       requestEcharts().then(res=>{
-        let list = res
-        // console.log("axios:",res)
-        // let legendData = []
-        // for(let parent of list){
-        //   for(let child of parent.value){
-        //     legendData.push(child.corpname)
-        //   }
-        // }
-        let itemList = list.map((parent) => { 
-          let temp = {
-                      "leftechartSource":{
-                        "Id": parent.id,
-                        "Name": parent.name,
-                        "grid": [{"x": "18%", "y": "7%", "width": "92%", "height": "56%"}],
-                        "xAxis": {
-                          "axisLine":{
-                            "lineStyle":{
-                              "color": "#fff"
-                            }
+          
+          let list = res
+
+          let itemList = list.map((parent) => { 
+            let temp = {
+                        "leftechartSource":{
+                          "Id": parent.id,
+                          "Name": parent.name,
+                          "grid": [{"x": "4%", "y": "7%", "width": "92%", "height": "56%"}],
+                          "xAxis": {
+                            "axisLine":{
+                              "lineStyle":{
+                                "color": "#fff"
+                              }
+                            },
+                            "data": parent.businessdate
                           },
-                          "data": parent.businessdate
-                        },
-                        "yAxis": {
-                          "axisLine":{
-                            "lineStyle":{
-                              "color": "#fff"
-                            }
+                          "yAxis": {
+                            "axisLine":{
+                              "lineStyle":{
+                                "color": "#fff"
+                              }
+                            },
+                            "type" : 'value'
                           },
-                          "type" : 'value'
+                          "color":["#00bade"],
+                          "series": parent.value.map(temp=>{
+                            return  {
+                                "type": 'bar',
+                                "data": temp.data,
+                              }
+                          })
                         },
-                        "color":["#00bade"],
-                        "series": parent.value.map(temp=>{
-                          return  {
-                              "name": '利润',
-                              "type": 'bar',
-                              "data": temp.data,
-                            }
-                        })
-                      },
-                      "completeData":{
-                        "title" : {
-                          "text": parent.name,
-                          "x":"center",
-                          "textStyle":{
-                            "color":"#fff"
-                          }
-                        },
-                        "tooltip" : {
-                            "trigger": 'axis'
-                        },
-                        "legend": {
-                            "top":"8%",
-                            "data": parent.corpname,
+                        "completeData":{
+                          "title" : {
+                            "text": parent.name,
+                            "x":"center",
                             "textStyle":{
                               "color":"#fff"
                             }
-                        },
-                        "grid": [{"x": "4%", "y": "16%", "width": "90%", "height": "62%"}],
-                        "xAxis": {
-                          "axisLine":{
-                            "lineStyle":{
-                              "color": "#fff"
-                            }
                           },
-                          "axisLabel": {  
-                            "interval":0,  
-                            "rotate":40  
+                          "tooltip" : {
+                              "trigger": 'axis'
                           },
-                          "data": parent.businessdate
-                        },
-                        "yAxis": {
-                          "axisLine":{
-                            "lineStyle":{
-                              "color": "#fff"
-                            }
-                          },
-                          "type" : 'value'
-                        },
-                        "color":["#00bade","#ff6600"],
-                        "series": parent.value.map(temp=>{
-                          return  {
-                              "name": temp.corpname,
-                              "type": 'bar',
-                              "data": temp.data,
-                              "markPoint" : {
-                                  "data" : [
-                                      {"type" : 'max', "name": '最大值'},
-                                      {"type" : 'min', "name": '最小值'}
-                                  ]
+                          "legend": {
+                              "top":"8%",
+                              "data": parent.corpname,
+                              "textStyle":{
+                                "color":"#fff"
                               }
-                            }
-                        })
+                          },
+                          "grid": [{"x": "4%", "y": "16%", "width": "90%", "height": "62%"}],
+                          "xAxis": {
+                            "axisLine":{
+                              "lineStyle":{
+                                "color": "#fff"
+                              }
+                            },
+                            "axisLabel": {  
+                              "interval":0,  
+                              "rotate":40  
+                            },
+                            "data": parent.businessdate
+                          },
+                          "yAxis": {
+                            "axisLine":{
+                              "lineStyle":{
+                                "color": "#fff"
+                              }
+                            },
+                            "type" : 'value'
+                          },
+                          "color":["#00bade","#ff6600"],
+                          "series": parent.value.map(temp=>{
+                            return  {
+                                "name": temp.corpname,
+                                "type": 'bar',
+                                "data": temp.data,
+                                "markPoint" : {
+                                    "data" : [
+                                        {"type" : 'max', "name": '最大值'},
+                                        {"type" : 'min', "name": '最小值'}
+                                    ]
+                                }
+                              }
+                          })
+                        }
                       }
-                    }
-          return temp
-        })
+            return temp
+          })
+          if(list.length > 0){
+           setTimeout(()=>this.showLodding = false,500)
+         }
+          this.currencyData = itemList
 
-        this.currencyData = itemList
-
-
-        // console.log(this.currencyData)
-
+      }).catch((err)=>{
+        if(err.response.data.status === 500){
+          this.showLodding = true
+        }
       })
+
       requestPowerBi().then(res=>{
         this.specialData = res
       })
@@ -439,13 +448,13 @@
             if (event.clientX > 420){
               $('.takeUp').css('display','none')
             }
-            
           }else{
             if (event.clientX < 20){
               $('.takeUp2').css('display','block')
             }else{
               $('.takeUp2').css('display','none')
             }
+
           }
         })
       })
@@ -456,6 +465,7 @@
           let myChart = echarts.init(document.querySelector('#' + item.leftechartSource.Id))
           myChart.setOption(item.leftechartSource)
         }
+
       },500)
 
     //浏览器退出时 保存当前设置
@@ -618,11 +628,13 @@
       console.log(this.searchNameList) 
 
       this.showEchart ? this.searchNameList = currencyNameList : this.searchNameList = specialNameList
+
+      // searchGo
     },
 
     // 搜索框失去焦点
     searchBlur(){
-      restore()
+      // restore()
       setTimeout( () => {
         this.fuzzyQueryList_show = false
       },100)
@@ -676,25 +688,33 @@
       }
       let li = $('.autoCompletion').find("li:not(:first-child):eq(" + that.liIndex + ")")
       li.css("background", "#0283daa6").siblings().css("background", "")
+
+      if(ev.keyCode == 13){
+        that.searchGo()
+        that.fuzzyQueryList_show = false
+      }
     },
 
     //searchGo 开始搜索
     searchGo(){
       let that = this
-      // $('#left .currencyEchartBox').each(function (index,item) { 
-      //   if(that.searchInput != ''){
-      //     if($(item).attr('data-name') != that.searchInput){
-      //       $(item).parent().css('display','none')
-      //     }
-      //   }
-      // })
-      $('#left .left_specialBox div').each(function (index,item) { 
-        if(that.searchInput != ''){
-          if($(item).attr('data-name') != that.searchInput){
-            $(item).css('display','none')
+      if(that.showEchart){
+        $('#left .currencyEchartBox').each(function (index,item) { 
+          if(that.searchInput != ''){
+            if($(item).attr('data-name') != that.searchInput){
+              $(item).parent().css('display','none')
+            }
           }
-        }
-      })
+        })
+      }else{
+        $('#left .left_specialBox div').each(function (index,item) { 
+          if(that.searchInput != ''){
+            if($(item).attr('data-name') != that.searchInput){
+              $(item).css('display','none')
+            }
+          }
+        })
+      }
     },
 
     // 点击 模糊查询列表 设置值
@@ -709,9 +729,11 @@
       
       this.currencyModel = false
       this.specialModel = false
-      
+      this.searchInput = ''
     },
     clickSwitchBox2(ev){
+      this.searchInput = ''
+
       this.switchBox = !this.switchBox    
       this.switchText2 = this.switchText1
       this.switchText1 = ev.target.innerText
@@ -955,13 +977,8 @@
       searchFuzzyQueryList() {
         var search = this.searchInput;
         if (search) {
-          return this.searchNameList.filter(function(product) {
-            return Object.keys(product).some(function(key) {
-              return String(product[key]).toLowerCase().indexOf(search) > -1
-            })
-          })
+          return this.searchNameList.filter((item)=>item.indexOf(search) > -1)
         }
-        // return this.searchNameList; //全部列出，注释则，输入时列出查询数据
       }
     }
   };
@@ -970,6 +987,7 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style  lang="scss">
   @import url("http://www.jq22.com/jquery/font-awesome.4.6.0.css");
+  @import url("../static/style/loadding.css");
 
   .shadow{
     box-shadow: inset 1px 0px 15px #888890;
@@ -1197,7 +1215,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 80%;
+    width: 76%;
     height: 100%;
     background:none;    
     outline:none;    
@@ -1361,8 +1379,10 @@
   }
 
   #right > div:not(:first-child) {
+    // width: 90.7%;
+    // height: 96.5%;
     width: 99.7%;
-    height: 90%;
+    height: 94%;
     margin-bottom: 20px;
     position: relative;
     z-index: 0;
@@ -1379,7 +1399,7 @@
   }
 
   .echartBox {
-    // width: 97.7%;
+    // width: 90.7%;
     // height: 96.5%;
     width: 99.3%;
     height: 98.8%;
@@ -1426,18 +1446,24 @@
 
   /*具条*/
   .toolbarBox{
-    width: 80px;
+    // width: 80px;
+    width: 50px;
     height: 100px;
     position: absolute;
     top: -4px;
     right: -20px;
     z-index: 4;
     opacity: 0;    
-    -webkit-transition: right .5s ease;
-    -moz-transition: right .5s ease;
-    -ms-transition: right .5s ease;
-    -o-transition: right .5s ease;
-    transition: right .5s ease;
+    //  -webkit-transition: right .5s ease;
+    // -moz-transition: right .5s ease;
+    // -ms-transition: right .5s ease;
+    // -o-transition: right .5s ease;
+    // transition: right .5s ease;
+    -webkit-transition: top .5s ease;
+    -moz-transition: top .5s ease;
+    -ms-transition: top .5s ease;
+    -o-transition: top .5s ease;
+    transition: top .5s ease;
   }
   .toolbarBtn{
     width: 20px;
@@ -1456,12 +1482,14 @@
     color: #fafafa;
   }
   .toolbarBtn:hover .toolbarBox{
-    right: -58px;
+    // right: -58px;
+    top: 28px;
     opacity: 1;
   }
   .toolbar{
     position: absolute;
-    right: 5px;
+    // right: 5px;
+    right: 12px;
     width: 14px;
     margin: 0;
     width: 30px;
@@ -1498,8 +1526,11 @@
     border-right: 7px solid #3a537c;
     border-bottom: 7px solid transparent;
     position: absolute;
-    top: 4px;
-    left: -7px;
+    // top: 4px;
+    // left: -7px;
+    transform: rotate(90deg);
+    top: -12px;
+    left: 10px;
   }
   .switch{
     background-color: #132E50;
@@ -1568,6 +1599,31 @@
   }
   .takeUp2{
     left: 1px;
+  }
+
+
+
+// lodding
+  #lodding{
+    position:absolute;
+    width: 400px;
+    height: 100%;
+    background-color: #0e223eeb;
+    z-index: 10000;
+
+    .loader{
+      margin: 110% auto 0;
+
+      .ball-scale-multiple{
+        width: 88px;
+        margin: 24px auto 0;
+        div{
+          width: 100px;
+          height: 100px;
+          background-color: #698ab9b0;
+        }
+      } 
+    }
   }
 }
 </style>

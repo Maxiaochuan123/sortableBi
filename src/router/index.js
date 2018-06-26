@@ -13,7 +13,7 @@ export default new Router({
       name: 'home',
       component: Home,
       children:[
-        { path: '/superSystem', name: 'superSystem', component: Supersystem }
+        { path: '/supersystem', name: 'supersystem', component: Supersystem }
       ]
     },
     {
