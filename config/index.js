@@ -27,13 +27,14 @@ module.exports = {
           } 
       },
       '/biview':{ //BI图表
-        target:'http://192.168.50.120:8000',
+        // target:'http://192.168.50.120:8000', //本地
+        target:'http://192.168.0.185:8000', //测试
         changeOrigin:true
       }
     },
 
     // Various Dev Server settings
-    host: '192.168.50.56', // can be overwritten by process.env.HOST
+    // host: '192.168.50.56', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

@@ -344,7 +344,7 @@
                         },
                         "completeData":{
                           "title" : {
-                            "text": parent.name,
+                            "text": parent.name + "(万元)",
                             "x":"center",
                             "textStyle":{
                               "color":"#fff"

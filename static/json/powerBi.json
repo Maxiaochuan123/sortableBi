@@ -1,4 +1,12 @@
 [{
+  "specialTitle": "日报",
+  "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiMDZlNjM5ZjQtNDZkNi00YjYwLTg5NGEtMjA0YTNhZWRlNWNkIiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
+  "specialTime":"2018-7-5"
+},{
+  "specialTitle": "科技中心项目情况展示",
+  "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiY2JlN2RmNmQtNzMwYi00YzdlLWIzZjQtNjIzZmIxY2VmZmZmIiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
+  "specialTime":"2018-7-4"
+},{
   "specialTitle": "放款进度",
   "specialUrl":"https://app.powerbi.cn/view?r=eyJrIjoiNzBhZTYwYzYtOGIxOC00ZDU0LWFhODUtZTQ1NmNkNmE2OTI5IiwidCI6IjgwYzg1ZTgyLTgzNzEtNDVlYy1hOGViLWIzMDJmYjI4NTU3NiJ9",
   "specialTime":"2018-6-13"
